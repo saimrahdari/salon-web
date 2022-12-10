@@ -15,8 +15,8 @@ import Users from "./pages/Users";
 import BookingDetails from "./pages/BookingDetails";
 import Slots from "./pages/Slots";
 import CreateAlert from "./pages/CreateAlert";
-
-
+import DetailTbody from "./components/DetailTbody";
+import History from "./pages/History";
 
 function App() {
   return (
@@ -29,6 +29,7 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/pending-bookings" element={<PendingBookings />} />
           <Route path="/upcoming-bookings" element={<UpcomingBookings />} />
+          <Route path="/history" element={<History />} />
           <Route path="/branch" element={<Locations />} />
           <Route path="/stylists" element={<Stylists />} />
           <Route path="/categories" element={<Categories />} />
@@ -36,9 +37,9 @@ function App() {
           <Route path="/notifications" element={<Notifications />} />
           <Route path="/users" element={<Users />} />
           <Route path="/booking-details" element={<BookingDetails />} />
+          <Route path="/detail" element={<DetailTbody />} />
           <Route path="/slots" element={<Slots />} />
           <Route path="/createalert" element={<CreateAlert />} />
-
         </Routes> 
       </Container>
       {/* container 

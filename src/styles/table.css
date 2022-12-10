@@ -13,6 +13,7 @@
     width: 850px;
     margin-top: 10px;
     margin-bottom: 50px;
+    
 }
 
 .table th {
@@ -20,6 +21,7 @@
     font-weight: 400;
     font-size: small;
     border-bottom: 1px solid #2E2E2E;
+   
 }
 
 .table table, th {
@@ -34,10 +36,13 @@
 
 .table table td {
     height: 40px;
+   
     color: white;
     font-size: 16px;
     /* text-align: center; */
     padding: 20px 16px;
+    justify-content: center;
+   
 }
 
 .table table td button {
@@ -50,6 +55,7 @@
     font-family: 'DM Sans';
 }
 
+
 .table table td .name {
     /* width: 145px; */
     display: flex;
@@ -61,6 +67,19 @@
 
 .table table td .accept {
     background-color: #E6B970;
+}
+
+.table table td .complete {
+    background-color: #E6B970;
+    width: 125px;
+    /* height: 20px; */
+    border: none;
+    color: white;
+    justify-content: center;
+    align-self: center;
+    padding: 5px 5px;
+    border-radius: 3px;
+    font-family: 'DM Sans';
 }
 
 .table table td .decline {
@@ -90,7 +109,17 @@
 .table .dropdown .dropdown-content {
     margin-left: -140px;
 }
-
+ .dropdown-content button{
+    margin-left: 8px;
+    row-gap: 12px;
+   color: white;
+   background-color: transparent;
+   width: 100%;
+ 
+}
+.dropdown-content button .icon{
+    padding-right: 4px;
+}
 
 
 @media (min-width: 950px) {

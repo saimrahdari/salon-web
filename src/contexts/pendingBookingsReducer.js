@@ -1,3 +1,5 @@
+
+
 const pendingBookingsReducer = (state, action) => {
   switch (action.type) {
     case "INITIALIZE_PENDING_BOOKINGS_DATA": {

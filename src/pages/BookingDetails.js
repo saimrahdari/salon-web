@@ -1,32 +1,39 @@
+import { useEffect } from "react";
+import { useState } from "react";
 import { IoStarSharp } from "react-icons/io5";
-import ProfilePicture from "../components/ProfilePicture";
+
 import "../styles/bookingDetails.css";
 
 const BookingDetails = (props) => {
-  return (
-    <div className="booking-details">
+
+
+  const [showDetailModal, setShowDetailModal] = useState(false);
+
+
+  return (  
+    <div className="booking-details"   show={showDetailModal}>
       <h2>Booking Details</h2>
       <div className="details">
         <div className="cell">
-          Name <span>David</span>
+          Name <span>{props.data.name}</span>
         </div>
         <div className="cell">
-          Phone <span>123456</span>
+          Phone <span>{props.data.phone}</span>
         </div>
         <div className="cell">
-          Date <span>Aug, 10th 2022</span>
+          Date <span>{props.data.date}</span>
         </div>
         <div className="cell">
-          Start Time <span>12:00 PM</span>
+          Start Time <span>{props.data.time}</span>
         </div>
         <div className="cell">
-          Email <span>David@gmail.com</span>
+          Email <span>{props.data.email}</span>
         </div>
         <div className="cell" id="stylist">
           Stylist
           <div className="card">
-            <ProfilePicture
-              style={{ width: "35px", height: "35px", marginRight: "20px" }}
+            <img src={props.data.stylistProfile}
+              style={{ width: "35px", height: "35px", marginRight: "10px" }}
             />
             <div
               style={{
@@ -35,7 +42,7 @@ const BookingDetails = (props) => {
                 fontSize: "16px",
               }}
             >
-              Alia
+             {props.data.stylist}
               <div>
                 <IoStarSharp className="icon" />
                 <IoStarSharp className="icon" />
@@ -46,35 +53,51 @@ const BookingDetails = (props) => {
             </div>
           </div>
         </div>
-        <div className="cell">
+        {/* <div className="cell">
           Duration <span>1 hour</span>
-        </div>
+        </div> */}
         <div className="cell">
-          Location <span>Street abc, Area name, city</span>
+          Location <span>{props.data.City}</span>
         </div>
       </div>
       <div className="services">
         Services
         <div>
-          <div className="service-item">
-            <span>Manicure</span>
-            <span style={{ fontWeight: "700" }}>$50</span>
-          </div>
-          <div className="service-item">
-            <span>Hair cut</span>
-            <span style={{ fontWeight: "700" }}>$50</span>
-          </div>
+          {
+
+            props.data.service !== undefined ? 
+            props.data.service.map((val) => (
+              <div className="service-item">
+                <span>{val.name}</span>
+                <span style={{ fontWeight: "700" }}>$ {val.price}</span>
+              </div>
+              ))
+            : null 
+            // console.log(props.data.service)
+            // props.data.service.map((val) => (
+            // <div className="service-item">
+            //   <span>{val.name}</span>
+            //   <span style={{ fontWeight: "700" }}>{val.price}</span>
+            // </div>
+            // ))
+            // props.data.service( val => {
+            //    return(
+            //     <div>{val.name}</div>
+            //   )
+            // })
+          }
+          
         </div>
       </div>
       <div className="total">
         Total Payment
         <div className="item">
           <span>Total</span>
-          <span style={{ fontWeight: "700" }}>$100</span>
+          <span style={{ fontWeight: "700" }}>$ {props.data.totalPrice}</span>
         </div>
       </div>
-      <button>Reject</button>
-      <button className="approve">Approve</button>
+      {/* <button onClick={props.decline}>Reject</button>
+      <button onClick={props.accept} className="approve">Approve</button> */}
     </div>
   );
 };

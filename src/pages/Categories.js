@@ -17,7 +17,8 @@ import ProfilePicture from "../components/ProfilePicture";
 import InputField from "../components/InputField";
 import "../styles/categories.css";
 import { FaWindows } from "react-icons/fa";
-
+import LoadingSpinner from "../components/LoadingSpinner";
+import filterImage from "../assets/filterImage.png";
 const Categories = (props) => {
   const {
     categories,
@@ -26,6 +27,9 @@ const Categories = (props) => {
     updatecategory,
     deletecategory,
   } = useGlobalState();
+  const { locations } = useContext(GlobalContext);
+  const [location, setLocation] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [showSubModal, setShowSubModal] = useState(false);
   const [showCatModal, setShowCatModal] = useState(false);
   const [name, setName] = useState("");
@@ -51,6 +55,7 @@ const Categories = (props) => {
   const updateprice = (e) => setprice(e.target.value);
 
   const addNewCategory = async () => {
+    setIsLoading(true);
     const newCategory = {
       data: {
         name: name.trim(),
@@ -62,6 +67,7 @@ const Categories = (props) => {
       id: "",
     };
     try {
+     
       //Add new
       const category = await addDoc(
         collection(db, "category"),
@@ -75,9 +81,11 @@ const Categories = (props) => {
     } catch (err) {
       console.log(err);
     }
+    setIsLoading(false);
   };
 
   const Addsubcat = async () => {
+    setIsLoading(true);
     console.log(uid);
     const ref = doc(db, "category", uid);
     let index = {
@@ -95,9 +103,11 @@ window.location.reload(true)
     }
 
     hideSubModal();
+    setIsLoading(false);
   };
 
   const deleteCatData = async (id) => {
+    setIsLoading(true);
     console.log("moix");
     const ref = doc(db, "category", id);
     try {
@@ -107,6 +117,7 @@ window.location.reload(true)
     } catch (err) {
       console.log(err);
     }
+    setIsLoading(false);
   };
   console.log(categories);
 
@@ -139,6 +150,7 @@ window.location.reload(true)
         <button className="update-stylist-detail" style={{cursor:'pointer'}} onClick={Addsubcat}>
           Update
         </button>
+        {isLoading ? <LoadingSpinner /> : Categories}
       </Modal>
 
       <Modal
@@ -173,9 +185,43 @@ window.location.reload(true)
         >
           Update
         </button>
+        {isLoading ? <LoadingSpinner /> : Categories}
       </Modal>
+      <div className="table-header" style={{ width: "850px" }}>
+        <h2>Categories</h2>
 
-      <TableHeader title="Categories" style={{ width: "850px" }} />
+        <div className="container">
+          <div
+            className="center-container"
+            style={{ width: "100%", justifyContent: "right" }}
+          >
+            {props.default ? (  
+              <div className="location">
+                Default <AiFillCaretDown className="icon small" />
+              </div>
+            ) : (
+              ""
+            )}
+            <div className="center-container">
+              <div
+                className="location"
+                style={{
+                  height: "fit-content",
+                  width: "fit-content",
+                  borderRadius: 25,
+                }}
+              >
+                {/* <HiLocationMarker className="icon" /> Location: All
+              <AiFillCaretDown className="icon small" /> */}
+              
+              
+              </div>
+             
+            </div>
+          </div>
+        </div>
+      </div>
+      {/* <TableHeader title="Categories" style={{ width: "850px" }} /> */}
       {categories.map((item) => {
         return (
           <CategoryItem

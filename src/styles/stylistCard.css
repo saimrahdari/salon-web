@@ -31,6 +31,7 @@
     font-size: small;
     display: flex;
     align-items: center;
+   
     /* border: 1px solid red; */
     /* justify-content: space-between; */
 }  
@@ -39,7 +40,10 @@
     cursor: pointer;
     background-color: rgb(37, 37, 37);
 }
-
+.dropdown-content .loader{
+    height: 20px;
+    width: 20px;
+}
 .dropdown-content div .icon {
     margin-right: 10px;
     color: var(--primaryColor);

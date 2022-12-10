@@ -26,6 +26,14 @@
     flex-direction: column;
     align-items: center;
     margin-top: 20px;
+    justify-content: center;
+    border-radius:5px ;
+}
+.stylists .picture-container, .input-fields-container input{
+    border-radius:5px ;
+    justify-content: center;
+    align-items: center;
+    width: 70%;
 }
 
 .stylists .picture-container .add-picture {

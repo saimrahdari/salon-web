@@ -6,6 +6,7 @@ import {
   deleteDoc,
   updateDoc,
 } from "firebase/firestore";
+import filterImage from "../assets/filterImage.png";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { db, storage } from "../firebase";
 import { useGlobalState } from "../contexts/globalState";
@@ -18,6 +19,7 @@ import ProfilePicture from "../components/ProfilePicture";
 import "../styles/stylists.css";
 import { GlobalContext } from "../contexts/globalState";
 import DropdownMenu from "../components/DropdownMenu";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const Stylists = (props) => {
   const { stylists, updateStylist, deleteStylist } = useGlobalState();
@@ -30,7 +32,7 @@ const Stylists = (props) => {
   const [selected, setselected] = useState(["Select City"]);
   const [selected1, setselected1] = useState(["Select Branch"]);
   const changeimage = (e) => setimage(e.target.files[0]);
-
+  const [isLoading, setIsLoading] = useState(false);
   const showModal = (id) => {
     setStylistId(id);
     setShow(true);
@@ -40,6 +42,7 @@ const Stylists = (props) => {
   const updateName = (e) => setName(e.target.value);
 
   const updateStylistData = async () => {
+    setIsLoading(true);
     const useriamge = ref(storage, `${image.name}`);
     await uploadBytes(useriamge, image);
     const imageuser = await getDownloadURL(useriamge);
@@ -74,7 +77,7 @@ const Stylists = (props) => {
     if (name !== "" && selected !== "Select City" && imageuser === "") {
       stylistedit = {
         name: name,
-        city: selected,
+        City: selected,
       };
     }
 
@@ -105,9 +108,11 @@ const Stylists = (props) => {
     setName("");
     hideModal();
     window.location.reload(true);
+    setIsLoading(false);
   };
 
   const deleteStylistData = async (id) => {
+    setIsLoading(true);
     const ref = doc(db, "stylist", id);
     try {
       await deleteDoc(ref);
@@ -115,6 +120,7 @@ const Stylists = (props) => {
     } catch (err) {
       console.log(err);
     }
+    setIsLoading(false);
   };
   let streetdropdownarray = [];
 
@@ -136,23 +142,23 @@ const Stylists = (props) => {
         title="Details"
         show={show}
         hideModal={hideModal}
-        contentStyle={{ height: "350px" }}
+        contentStyle={{ height: "400px" }}
       >
         <div className="picture-container">
           {/* <div className="add-picture"></div> */}
         </div>
-        <div className="input-fields-container" style={{marginBotton:50}}>
-        <button
+        <div className="input-fields-container" style={{marginBotton:10}}>
+        {/* <button
             style={{ backgroundColor: "#e6b970", cursor: "pointer",padding:2 }}
             onClick={handleClick}
           >
             Upload Picture
-          </button>
+          </button> */}
           <input
             type="file"
-            ref={hiddenFileInput}
+            // ref={hiddenFileInput}
             onChange={handleChange}
-            style={{ display: "none" }}
+            style={{fontSize:"14px",alignItems:"center", height:"30px",justifyContent:"center", backgroundColor: "#e6b970", cursor: "pointer",padding:2  }}
           />
           {/* <InputField
             id="file"
@@ -161,12 +167,7 @@ const Stylists = (props) => {
             placeholder="Enter stylist name"
             changeHandler={changeimage}
           /> */}
-          <InputField
-            fieldStyle={{ height: "30px" }}
-            placeholder="Enter stylist name"
-            value={name}
-            changeHandler={updateName}
-          />
+        
 
           {/* <DropdownMenu title={selected1}>
             {locations.map((item, ind) => {
@@ -187,6 +188,12 @@ const Stylists = (props) => {
             })}
           </DropdownMenu> */}
         </div>
+        <InputField
+            fieldStyle={{ height: "30px" }}
+            placeholder="Enter stylist name"
+            value={name}
+            changeHandler={updateName}
+          />
         <DropdownMenu title={selected}>
           {locations.map((item, ind) => {
             return (
@@ -203,16 +210,65 @@ const Stylists = (props) => {
         >
           Update
         </button>
+        {isLoading ? <LoadingSpinner /> : Stylists}
       </Modal>
 
       {/* displating card of stylist  */}
+      <div className="table-header" style={{ width: "800px", marginBottom: "20px"}}>
+      <h2>Stylists</h2>
 
-      <TableHeader
+      <div className="container">
+        <div
+          className="center-container"
+          style={{ width: "100%", justifyContent: "right" }}
+        >
+          <div className="center-container">
+            <div
+              className="location"
+              style={{
+                height: "fit-content",
+                width: "fit-content",
+                borderRadius: 25,
+              }}
+            >
+              {/* <HiLocationMarker className="icon" /> Location: All
+              <AiFillCaretDown className="icon small" /> */}
+              <label>Branch:</label>
+              <select
+                className="block p-2 m-1 max-w-sm text-sm outline-none"
+                style={{
+                  backgroundColor: "rgba(52, 52, 52, 0)",
+                  border: "0 !important",
+                  boxShadow: "0 !important",
+                  border: "0 !important",
+                  cursor: "pointer",
+                }}
+                onChange={(e) => {
+                  if (e.target.value == "All") {
+                    setLocation("");
+                  } else {
+                    setLocation(e.target.value);
+                  }
+                }}
+              >
+                <option>All</option>
+                {locations.map((val, ind) => (
+                  <option>{val.data.branch}</option>
+                ))}
+              </select>
+            </div>
+            <img src={filterImage} alt=""></img>
+          </div>
+        </div>
+      </div>
+    </div>
+      {/* <TableHeader
         title="Stylists"
         style={{ width: "800px", marginBottom: "20px" }}
-      />
+      /> */}
       <div className="cards-container">
         {stylists.map((item) => {
+          if (item.data.City == location || location == "") {
           return (
             <StylistCard
               key={item.id}
@@ -221,10 +277,11 @@ const Stylists = (props) => {
               showModal={showModal.bind(this, item.id)}
               hideModal={hideModal}
               deleteStylist={deleteStylistData.bind(this, item.id)}
+             location={location}
             />
           );
-        })}
-        <StylistCard className="add-card" item={{ name: "Add Stylist" }} />
+        }})}
+        <StylistCard className="add-card" item={{ name: "Add Stylist" }}  isLoading={isLoading} />
       </div>
     </div>
   );

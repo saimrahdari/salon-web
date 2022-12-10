@@ -4,6 +4,8 @@ import { useContext } from "react";
 import { GlobalContext } from "../contexts/globalState";
 import "../styles/locations.css";
 import Modal from "../components/Modal";
+import Modal1 from "../components/Modal1";
+import "../styles/table.css";
 import InputField from "../components/InputField";
 
 import { db } from "../firebase";
@@ -19,6 +21,7 @@ import {
   arrayUnion,
 } from "firebase/firestore";
 import DropdownMenu from "../components/DropdownMenu";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 export default function Locations(props) {
   const { locations } = useContext(GlobalContext);
@@ -35,26 +38,39 @@ export default function Locations(props) {
 
   const [locationshow, setlocationshow] = useState(false);
   const locationshowset = () => setlocationshow(false);
-
+  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading1, setIsLoading1] = useState(false);
+  const [isLoading2, setIsLoading2] = useState(false);
   const [selected, setselected] = useState(["Select Location"]);
   const [City, setCity] = useState("");
   const [Street, setStreet] = useState("");
-
+  const [LocationData, setlocationData] = useState([]);
   const [loc, setloc] = useState([]);
   const [book, setbook] = useState([]);
   const addcity = (e) => setCity(e.target.value);
   const addstreet = (e) => setStreet(e.target.value);
+  const getlocation = async () => {
+    setIsLoading(true);
+    const getData = await getDocs(addreflocation);
+    console.log(getData);
+    setlocationData(getData.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
+    setIsLoading(false);
+  };
 
   const addlocation = async () => {
+    setIsLoading(true);
     const addData = await addDoc(addreflocation, {
       branch: City,
     }).catch((err) => {
       console.log(err);
     });
     hideModal();
+    getlocation();
     window.location.reload(true);
+    setIsLoading(false);
   };
   const updatelocation = async () => {
+    setIsLoading(true);
     const ref=doc(db,"location",selected[1])
     const addData = await updateDoc(ref, {
       street: arrayUnion(Street),
@@ -63,28 +79,38 @@ export default function Locations(props) {
     });
     locationshowset();
     window.location.reload(true);
+    setIsLoading(false);
   };
 
   const filterBooking = async (location) => {
+    setIsLoading1(true);
     console.log(location);
     const ref = collection(db, "upcoming_bookings");
     const q = query(ref, where("City", "==", location));
     const querySnapshot = await getDocs(q);
     setbook(querySnapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
     console.log(loc);
+    setIsLoading1(false);
   };
 
   const filterStylistLocation = async (location) => {
+    setIsLoading2(true);
     console.log(location);
     const ref = collection(db, "stylist");
     const q = query(ref, where("City", "==", location));
     const querySnapshot = await getDocs(q);
     setloc(querySnapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
     console.log(loc);
+    setIsLoading2(false);
   };
 
 console.log(selected)
+useEffect(() => {
+  getlocation();
+}, []);
   return (
+    <>
+
     <div className="locations">
       <div className="location-header">
         <h2 >Branch</h2>
@@ -95,7 +121,7 @@ console.log(selected)
           Add Branch Location
         </button> */}
         <button style={{cursor:'pointer'}} onClick={() => setShow(true)}>Add Branch </button>
-
+        </div>
         <Modal
           title="Branch"
           show={show}
@@ -119,6 +145,7 @@ console.log(selected)
           <button style={{cursor:'pointer'}} className="update-stylist-detail" onClick={addlocation}>
             Add Branch
           </button>
+          {isLoading ? <LoadingSpinner /> : Locations}
         </Modal>
 
 
@@ -145,31 +172,34 @@ console.log(selected)
           </button> */}
 
 
-
-        <Modal
+          {isLoading2 ? <LoadingSpinner className="loader" /> : 
+        <Modal1
           title="Branch"
           show={show1}
           hideModal={hideModal1}
-          contentStyle={{ height: "350px" }}
+          contentStyle={{ height: "350px",width: "650px" }}
         >
-          <div className="picture-container">
-            {/* <div className="add-picture"></div> */}
-            <span style={{color:'white'}}>Stylists Present Here {loc.length}</span>
-          </div>
-          <div className="input-fields-container" style={{ marginTop: "40px" }}>
+         
+            <span style={{color:'white',fontSize:'20px'}}>Stylists Present Here {loc.length}</span>
+          <div className="">
+          <table className="table  w-[600px] justify-between " >
+          <tr className="justify-between " style={{ backgroundColor: "transparent", fontSize:"16px", justifyContent:"center"}}>
+                  <th style={{fontSize:"16px", paddingRight:"190px"}} >Stylist Name: </th>
+                  <th style={{fontSize:"16px"}} >Branch: </th>
+                </tr>
             {loc.map((val, ind) => {
               console.log(val);
               return (
-                <div style={{ display: "flex", width: "300px",color:'#E6B970' }}>
-                  <h3 style={{ marginRight: 30 }}>Name: {val.name}</h3>
-                  <h3>Branch: {val.City}</h3>
-                </div>
+                <tr className="justify-between text-white p-5" >
+                  <td style={{fontSize:"20px",color:"white", paddingLeft:"10px"}} > {val.name}</td>
+                  <td style={{fontSize:"20px",color:"white",paddingRight:"10px"}}> {val.City}</td>
+                </tr>
               );
             })}
-          </div>
-        </Modal>
-
-        <Modal
+          </table></div>
+        </Modal1>}
+        {isLoading1 ? <LoadingSpinner style={{alignItems:"center"}} /> : 
+        <Modal1
           title="Branch"
           show={show2}
           hideModal={hideModal2}
@@ -177,29 +207,29 @@ console.log(selected)
         >
           <div className="picture-container">
             {/* <div className="add-picture"></div> */}
-            <span style={{color:'white'}}>Bookings {book.length}</span>
+            <span style={{color:'white',fontSize:'20px'}}>Bookings {book.length}</span>
           </div>
-          <div className="input-fields-container" style={{ marginTop: "40px" }}>
+          <table className="table  w-[600px] justify-between " >
+          <tr className="justify-between " style={{ backgroundColor: "transparent", fontSize:"16px", justifyContent:"center"}} >
+                  <th style={{fontSize:"16px", paddingRight:"150px"}} >Name: </th>
+                  <th style={{fontSize:"16px", paddingRight:"150px"}}>City:</th>
+                  <th style={{fontSize:"16px"}} >Stylist Booked:</th>
+                </tr>
             {book.map((val, ind) => {
               console.log(val);
               return (
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    width: "600px",
-                    color:'#E6B970'
-                  }}
+                <tr className="p-5"
+
                 >
-                  <h3 style={{ marginRight: 30 }}>Name: {val.name}</h3>
-                  <h3 style={{ marginRight: 30 }}>City: {val.City}</h3>
-                  <h3>Stylist Booked: {val.stylist}</h3>
-                </div>
+                  <td style={{fontSize:"20px",color:"white",paddingLeft:"10px"}}>  {val.name}</td>
+                  <td style={{fontSize:"20px",color:"white"}} > {val.City}</td>
+                  <td style={{fontSize:"20px",color:"white", paddingRight:"10px"}}> {val.stylist}</td>
+                </tr>
               );
             })}
-          </div>
-        </Modal>
-      </div>
+          </table>
+        </Modal1>}
+        {props.isLoading ? <LoadingSpinner /> : Locations}
       {locations.map((item) => {
         // let st=item.data.street;
         return (
@@ -236,5 +266,6 @@ console.log(selected)
         );
       })}
     </div>
+    </>
   );
 }

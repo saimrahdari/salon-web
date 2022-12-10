@@ -11,13 +11,14 @@ import {
 import InputField from "../components/InputField";
 import Modal from "../components/Modal";
 import "../styles/categories.css";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 export default function ActivityKeysTbody(props) {
   const [modal, setmodal] = useState(false);
   const [nameupdate, setnameupdate] = useState("");
   const [emailupdate, setemailupdate] = useState("");
   const [phoneupdate, setphoneupdate] = useState("");
-
+  const [isLoading, setIsLoading] = useState(false);
   const updateName = (e) => setnameupdate(e.target.value);
   const updateEmail = (e) => setemailupdate(e.target.value);
   const updatePhone = (e) => setphoneupdate(e.target.value);
@@ -28,6 +29,7 @@ export default function ActivityKeysTbody(props) {
   const hideModal = () => setmodal(false);
 
   const updateuser = async (uid) => {
+    setIsLoading(true);
     let userArray = {};
     if (nameupdate !== "" && emailupdate !== "" && phoneupdate !== "") {
       userArray = {
@@ -73,13 +75,16 @@ export default function ActivityKeysTbody(props) {
     await updateDoc(updatedocument, userArray);
     hideModal();
     window.location.reload(true);
+    setIsLoading(false);
   };
 
   const deleteuser = async (uid) => {
+    setIsLoading(true);
     console.log(uid);
     const deletedocument = doc(db, "users", uid);
     await deleteDoc(deletedocument);
     window.location.reload(true);
+    setIsLoading(false);
   };
 
   return (
@@ -103,6 +108,7 @@ export default function ActivityKeysTbody(props) {
               Delete
             </button>
         </td>
+       
       </tr>
 
       <Modal

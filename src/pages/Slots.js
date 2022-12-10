@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import DropdownMenu from "../components/DropdownMenu";
 import TableHeader from "../components/TableHeader";
 import "../styles/slots.css";
+
+import filterImage from "../assets/filterImage.png";
 import removeImage from "../assets/removeImage.png";
 import addImage from "../assets/addImage.png";
 import {
@@ -18,8 +20,12 @@ import {
 import { db } from "../firebase";
 import { useGlobalState } from "../contexts/globalState";
 import { async } from "@firebase/util";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const Slots = (props) => {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const [location, setLocation] = useState("");
   const { stylists, updateStylist, deleteStylist } = useGlobalState();
   const [selected, setselected] = useState(["Select Stylist"]);
   const [selected1, setselected1] = useState("Select Timings");
@@ -54,6 +60,7 @@ const Slots = (props) => {
   ];
 
   const timing = async () => {
+    setIsLoading(true);
     const q = query(collection(db, "stylist"), where("time", "!=", []));
     const querySnapshot = await getDocs(q);
     const datas = querySnapshot.docs.map((doc) => ({
@@ -61,10 +68,12 @@ const Slots = (props) => {
       id: doc.id,
     }));
     setdatatime(datas);
+    setIsLoading(false);
   };
   console.log(datatime);
 
   const Addaslot = async () => {
+    setIsLoading(true);
     console.log(selected[1]);
     let dataArray = {};
     if (selected1 !== "Select Timings" && selected !== "Select Stylist") {
@@ -77,6 +86,7 @@ const Slots = (props) => {
       alert("Please Select A Time Slot ");
     }
     timing();
+    setIsLoading(false);
   };
 
 
@@ -95,11 +105,59 @@ const Slots = (props) => {
 
   return (
     <div className="slots">
-      <TableHeader
+      {/* <TableHeader
         title="Slots Allocation"
         default={true}
         style={{ marginBottom: "15px" }}
-      />
+      /> */}
+            <div className="table-header" style={{  marginBottom: "20px"}}>
+      <h2>Slots Allocation</h2>
+
+      <div className="container">
+        <div
+          className="center-container"
+          style={{ width: "100%", justifyContent: "right" }}
+        >
+          <div className="center-container">
+            <div
+              className="location"
+              style={{
+                height: "fit-content",
+                width: "fit-content",
+                borderRadius: 25,
+              }}
+            >
+              {/* <HiLocationMarker className="icon" /> Location: All
+              <AiFillCaretDown className="icon small" /> */}
+              <label>Stylist:</label>
+              <select
+                className="block p-2 m-1 max-w-sm text-sm outline-none"
+                style={{
+                  backgroundColor: "rgba(52, 52, 52, 0)",
+                  border: "0 !important",
+                  boxShadow: "0 !important",
+                  border: "0 !important",
+                  cursor: "pointer",
+                }}
+                onChange={(e) => {
+                  if (e.target.value == "All") {
+                    setLocation("");
+                  } else {
+                    setLocation(e.target.value);
+                  }
+                }}
+              >
+                <option>All</option>
+                {stylists.map((val, ind) => (
+                  <option>{val.data.name}</option>
+                ))}
+              </select>
+            </div>
+            <img src={filterImage} alt=""></img>
+          </div>
+        </div>
+      </div>
+    </div>
       <div className="menus-container">
         <DropdownMenu title={selected1}>
           {options.map((item, ind) => {
@@ -148,9 +206,11 @@ const Slots = (props) => {
         >
           Add
         </button>
+       
       </div>
-
+      {isLoading ? <LoadingSpinner /> : Slots}
       {datatime.map((val, ind) => {
+        if (val.name == location || location == "") {
       let arraytime=val.time
         return (
           <div key={ind} className="center-container">
@@ -160,9 +220,11 @@ const Slots = (props) => {
             <div className="thing">
               <span>{val.name}</span>
             </div>
+
           </div>
         );
-      })}
+      }})}
+     
     </div>
   );
 };

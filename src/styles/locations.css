@@ -1,13 +1,17 @@
 .locations {
     display: flex;
-    height: 50%;
-    width: 100%;
+   
+   
     margin-top: 20px;
-    margin-right: 2px;
+    margin: 20px;
+    margin-right: 20px;
     flex-direction: column;
     /* border: 1px solid red; */
 }
-
+.table {
+    overflow: scroll;
+   
+}
 .locations .location-header {
     height: 10%;
     width: 100%;
@@ -15,6 +19,11 @@
     justify-content: space-between;
     margin-bottom: 27px;
     /* border: 1px solid white; */
+}
+.loader{
+    justify-content: center;
+    align-items: center;
+    text-align: center;
 }
 
 .locations .location-header h2 {
@@ -80,6 +89,9 @@
     background-color: transparent;  
     font-size: 10px;  
     font-family: 'DM Sans';
+}
+.input-fields-container{
+    margin-top: 40px;
 }
 
 @media (min-width: 800px) {

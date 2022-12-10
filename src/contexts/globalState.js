@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useReducer } from "react";
 import { collection, getDocs, doc, deleteDoc,query,where } from "firebase/firestore";
 import { db } from "../firebase";
+import LoadingSpinner from "../components/LoadingSpinner";
 import combineReducers from "react-combine-reducers";
 import locationReducer from "./locationReducer";
 import stylistsReducer from "./stylistsReducer";
@@ -8,7 +9,8 @@ import categoriesReducer from "./categoriesReducer";
 import adminReducer from "./adminReducer";
 import pendingBookingsReducer from "./pendingBookingsReducer";
 import upcomingBookingsReducer from "./upcomingBookingsReducer";
-
+import completedBookingsReducer from "./completedBookingsReducer";
+import { useState } from "react";
 const initialAdminState = {
   adminData: {},
 };
@@ -32,6 +34,10 @@ const initialStatePendingBooking = {
 const initialStateUpcomingBooking = {
   upcoming_bookings: [],
 };
+const initialStateCompletedBooking = {
+  completed_bookings: [],
+};
+
 
 export const GlobalContext = createContext();
 
@@ -42,14 +48,19 @@ const [rootReducer, initialState] = combineReducers({
   categoriesState: [categoriesReducer, initialCategories],
   pendingBookingsState: [pendingBookingsReducer, initialStatePendingBooking],
   upcomingBookingsState: [upcomingBookingsReducer, initialStateUpcomingBooking],
+  completedBookingsState: [completedBookingsReducer, initialStateCompletedBooking],
+
 });
 
 export const GlobalProvider = (props) => {
+  const [isLoading, setIsLoading] = useState(false);
   const [state, dispatch] = useReducer(rootReducer, initialState);
 
   //Actions.
   useEffect(() => {
+    setIsLoading(true)
     const initializeAdminData = async () => {
+    
       console.log("Loading...");
       const adminData = await getDocs(collection(db, "admin"));
       console.log("Loaded");
@@ -57,17 +68,24 @@ export const GlobalProvider = (props) => {
         type: "INITIALIZE_ADMIN_DATA",
         data: adminData,
       });
+     
     };
 
     const initializeData = async () => {
+      setIsLoading(true);
+      console.log("Loading...");
       const locationData = await getDocs(collection(db, "location"));
       const stylistsData = await getDocs(collection(db, "stylist"));
       const categoriesData = await getDocs(collection(db, "category"));
-      const qpending = query(collection(db, "upcoming_bookings"), where("isApprroved", "==", false));
+      const qpending = query(collection(db, "upcoming_bookings"), where("isApprroved", "==", 0));
       const pendingBookingsData = await getDocs(qpending);
-      const qupcomingbooking = query(collection(db, "upcoming_bookings"), where("isApprroved", "==", true));
+      const qupcomingbooking = query(collection(db, "upcoming_bookings"), where("isApprroved", "==", 1));
       const upcomingBookingsData = await getDocs(qupcomingbooking);
-
+      const qcompletedbooking = query(collection(db, "upcoming_bookings"), where("isApprroved", "==", 2));
+      const completedBookingsData = await getDocs(qcompletedbooking);
+      console.log("Loaded");
+      setIsLoading(false);
+      // console.log(setIsLoading(false));
       dispatch({
         type: "INITIALIZE_LOCATION_DATA",
         data: locationData,
@@ -88,8 +106,13 @@ export const GlobalProvider = (props) => {
         type: "INITIALIZE_UPCOMING_BOOKINGS_DATA",
         data: upcomingBookingsData,
       });
+      dispatch({
+        type: "INITIALIZE_COMPLETED_BOOKINGS_DATA",
+        data: completedBookingsData,
+      });
     };
-
+   
+    
     initializeAdminData();
     initializeData();
   }, []);
@@ -152,7 +175,24 @@ export const GlobalProvider = (props) => {
       id: id,
     });
   };
+  const updatesubcategory = (id, name,price) => {
+    dispatch({
+      type: "UPDATE_SUBCATEGORY",
+      id: id,
+      name: name,
+      price:price
+    });
+  };
+
+  const deletesubcategory = (id) => {
+    dispatch({
+      type: "DELETE_SUBCATEGORY",
+      id: id,
+    });
+  };
   return (
+  <>
+   
     <GlobalContext.Provider
       value={{
         adminCredentials: state.adminState.adminData,
@@ -161,6 +201,7 @@ export const GlobalProvider = (props) => {
         categories: state.categoriesState.categories,
         pendingBookings: state.pendingBookingsState.pending_bookings,
         upcomingBookings: state.upcomingBookingsState.upcoming_bookings,
+        completedBookings: state.completedBookingsState.completed_bookings,
         addLocation,
         addStylist,
         updateStylist,
@@ -169,13 +210,23 @@ export const GlobalProvider = (props) => {
         addSubcategory,
         updatecategory,
         deletecategory,
+        updatesubcategory,
+        deletesubcategory,
+       
       }}
+   
     >
       {props.children}
+      {/* {isLoading ? <LoadingSpinner style={{itemsAlign:"center"}}/> : GlobalProvider} */}
     </GlobalContext.Provider>
+    {isLoading ? <LoadingSpinner style={{itemsAlign:"center"}}/> : GlobalProvider}
+    </>
   );
 };
 
 export const useGlobalState = () => {
-  return useContext(GlobalContext);
+  return(  
+    
+    useContext(GlobalContext) 
+  )
 };

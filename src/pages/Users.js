@@ -23,10 +23,11 @@ import {
   doc,
 } from "firebase/firestore";
 import UsersTbody from "./UsersTbody";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 
 export default function Users() {
-
+  const [isLoading, setIsLoading] = useState(false);
   const [addname, setaddname] = useState("");
   const [addemail, setaddemail] = useState("");
   const [addphone, setaddphone] = useState("");
@@ -40,20 +41,23 @@ export default function Users() {
   const addrefUser = collection(db, "users");
 
   const getUser = async () => {
+    setIsLoading(true);
     const getData = await getDocs(addrefUser);
     console.log(getData);
     setuserData(getData.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
+    setIsLoading(false);
   };
 
   const keys = ["name", "email", "phone"];
   const [search, setsearch] = useState("");
   const searches = (datas) => {
     return datas.filter((item) =>
-      keys.some((key) => item[key].toLowerCase().includes(search))
+      keys.some((key) => item[key]?.toLowerCase().includes(search))
     );
   };
 
   const AddUser = async () => {
+   
     // const fcmToken = await messaging().getToken();
     // const messagin = getMessaging();
     const messaging = getMessaging();
@@ -63,7 +67,7 @@ getToken(messaging, { vapidKey: 'BAOfNwM-b6pwwaMeHGbZu7Btmn2h09zuHiFVQtAR36stoYT
     // ...
     console.log("PASSS");
     console.log(currentToken);
-
+    setIsLoading(true);
     const res = await createUserWithEmailAndPassword(auth, addemail, "abcd1234");
     const user = res.user;
     const addData = await addDoc(addrefUser, {
@@ -85,6 +89,7 @@ getToken(messaging, { vapidKey: 'BAOfNwM-b6pwwaMeHGbZu7Btmn2h09zuHiFVQtAR36stoYT
     setaddphone("");
     setmodal(false);
     getUser();
+    setIsLoading(false);
   } else {
     // Show permission request UI
     console.log('No registration token available. Request permission to generate one.');
@@ -96,7 +101,7 @@ getToken(messaging, { vapidKey: 'BAOfNwM-b6pwwaMeHGbZu7Btmn2h09zuHiFVQtAR36stoYT
 });
 
     // const fcmToken = await getToken({vapidKey: ""});  
-    
+    setIsLoading(false); 
   };
 
   const showModal = () => {
@@ -109,6 +114,7 @@ getToken(messaging, { vapidKey: 'BAOfNwM-b6pwwaMeHGbZu7Btmn2h09zuHiFVQtAR36stoYT
   }, []);
   return (
     <>
+     {/* {isLoading ? <LoadingSpinner style={{justifyContent:"center", }} /> :  */}
       <div className="users ">
         <div className="flexing">
           <h2>Users</h2>
@@ -152,6 +158,7 @@ getToken(messaging, { vapidKey: 'BAOfNwM-b6pwwaMeHGbZu7Btmn2h09zuHiFVQtAR36stoYT
           </table>
         </div>
       </div>
+      {/* } */}
       <Modal
         title="Adding New Category"
         show={modal}
@@ -185,6 +192,7 @@ getToken(messaging, { vapidKey: 'BAOfNwM-b6pwwaMeHGbZu7Btmn2h09zuHiFVQtAR36stoYT
         >
           Add
         </button>
+        {isLoading ? <LoadingSpinner /> : Users}
       </Modal>
     </>
   );

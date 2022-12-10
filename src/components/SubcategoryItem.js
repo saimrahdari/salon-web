@@ -18,61 +18,64 @@ import Modal from "../components/Modal";
 import InputField from "../components/InputField";
 
 const SubCategoryItem = ({ item, uid, style }) => {
+  const [showSubModal, setShowSubModal] = useState(false);
   const [name, setName] = useState("");
   const [price, setprice] = useState("");
   const updateName = (e) => setName(e.target.value);
   const updateprice = (e) => setprice(e.target.value);
-
-  const { deletecategory } = useGlobalState();
-  const deletesubcat = async (id) => {
-    const ref = doc(db, "category", id[2]);
-    let index = {
-      name: id[0],
-      price: id[1],
-    };
-    try {
-      const subcategory = await updateDoc(ref, {
-        subcategories: arrayRemove(index),
-      });
-      window.location.reload(true);
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  const eidt = async (id) => {
-    console.log(id);
-    const ref = doc(db, "category", id[2]);
-    let dataindex = {
-      name: id[0],
-      price: id[1],
-    };
-    try {
-      const subcategory = await updateDoc(ref, {
-        subcategories: arrayRemove(dataindex),
-      });
-      window.location.reload(true);
-    } catch (err) {
-      console.log(err);
-    }
-
-
+  const hideSubModal = () => setShowSubModal(false);
+  const { deletesubcategory,updatesubcategory } = useGlobalState();
+  const deletesubcat = async (uid) => {
+    const ref = doc(db, "category", uid);
     let index = {
       name: name,
       price: price,
     };
-    console.log(index);
+  //   try {
+  //     const subcategory = await updateDoc(ref, {
+  //       subcategories: arrayRemove(index),
+  //     });
+  //     window.location.reload(true);
+  //   } catch (err) {
+  //     console.log(err);
+  //   }
+  // };
+  
+  try {
+    const del = await deleteDoc(ref, {
+      subcategories: arrayUnion(index),
+    });
+    console.log(del);
+    deletesubcategory(uid);
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+
+  const eidt = async (uid) => {
+    console.log(uid);
+    const ref = doc(db, "category", uid);
+ 
+    
     try {
+      let index = {
+        name: name.trim(),
+        price: price.trim(),
+      };
+      console.log(index);
+      updatesubcategory(uid, name, price);
       const subcategory = await updateDoc(ref, {
         subcategories: arrayUnion(index),
       });
+      console.log(subcategory);
     } catch (err) {
       console.log(err);
     }
+    hideSubModal();
   };
 
-  const [showCatModal, setShowCatModal] = useState(false);
-  const hideCatModal = () => setShowCatModal(false);
+ 
   return (
     <>
       <div className="subcategory-item" style={style}>
@@ -103,15 +106,15 @@ const SubCategoryItem = ({ item, uid, style }) => {
           <IoPencil
             className="icon"
             style={{ cursor: "pointer" }}
-            onClick={() => setShowCatModal(true)}
+            onClick={() => setShowSubModal(true)}
           />
         </div>
       </div>
 
       <Modal
         title="Edit A Category"
-        show={showCatModal}
-        hideModal={hideCatModal}
+        show={showSubModal}
+        hideModal={hideSubModal}
         contentStyle={{ height: "350px" }}
       >
         {/* <div className="picture-container">
@@ -121,13 +124,13 @@ const SubCategoryItem = ({ item, uid, style }) => {
         <div className="input-container" style={{ marginTop: 90 }}>
           <InputField
             fieldStyle={{ height: "30px" }}
-            placeholder="Enter Name"
+            placeholder={item.name}
             value={name}
             changeHandler={updateName}
           />
           <InputField
             fieldStyle={{ height: "30px" }}
-            placeholder="Enter Price"
+            placeholder={item.price}
             value={price}
             changeHandler={updateprice}
           />
@@ -135,7 +138,7 @@ const SubCategoryItem = ({ item, uid, style }) => {
         <button
           className="update-stylist-detail"
           style={{ margin: "10px 20px" ,cursor:'pointer'}}
-          onClick={() => eidt([item.name, item.price, uid])}
+          onClick={() => eidt(item.id)}
         >
           Update
         </button>

@@ -20,6 +20,7 @@ import "../styles/stylists.css";
 import DropdownMenu from "../components/DropdownMenu";
 import { GlobalContext } from "../contexts/globalState";
 import React from "react";
+import LoadingSpinner from "./LoadingSpinner";
 const StylistCard = (props) => {
   const { rating, picture, name, id, location, City } = props.item;
   const { locations } = useContext(GlobalContext);
@@ -29,7 +30,7 @@ const StylistCard = (props) => {
   const [show1, setShow1] = useState(false);
   const hideModal1 = () => setShow1(false);
   const { addStylist } = useGlobalState();
-
+  const [isLoading, setIsLoading] = useState(false);
   const [selected, setselected] = useState(["Select City"]);
   const [selected1, setselected1] = useState(["Select Branch"]);
   const [Name, setName] = useState("");
@@ -60,6 +61,7 @@ const StylistCard = (props) => {
 
   console.log(image.name);
   const addUser = async () => {
+    setIsLoading(true);
     const useriamge = ref(storage, `${image.name}`);
     await uploadBytes(useriamge, image);
     const imageuser = await getDownloadURL(useriamge);
@@ -87,6 +89,7 @@ const StylistCard = (props) => {
       console.log(err);
     }
     window.location.reload(true);
+    setIsLoading(false);
   };
   let streetdropdownarray = [];
 
@@ -104,6 +107,7 @@ const StylistCard = (props) => {
   return (
     <>
       {/* hover dropdown  */}
+     
       <div className={!props.className ? "dropdown" : ""}>
         <div className={props.className ? props.className : "stylist-card"}>
           {props.className ? (
@@ -129,17 +133,24 @@ const StylistCard = (props) => {
           <div onClick={() => setShow1(true)}>
             <IoInformationCircleOutline className="icon" /> Show Details
           </div>
+         
           <div onClick={() => props.deleteStylist(id)}>
             <FaTrash className="icon" /> Delete
-          </div>
+          
+                 
         </div>
+       
+      
+        </div>
+        {props.isLoading ? <LoadingSpinner /> : StylistCard}
       </div>
+    
       {/* add stylist */}
       <Modal
         title="Details"
         show={show}
         hideModal={hideModal}
-        contentStyle={{ height: "380px" }}
+        contentStyle={{ height: "400px" }}
       >
         <div className="picture-container">
           {/* <div className="add-picture"></div> */}
@@ -147,17 +158,18 @@ const StylistCard = (props) => {
           {/* <InputField type="file" value="" changeHandler={addimg} /> */}
         </div>
         <div className="input-fields-container">
-          <button
+          {/* <button
             style={{ backgroundColor: "#e6b970", cursor: "pointer",padding:2 }}
             onClick={handleClick}
           >
             Upload Picture
-          </button>
+          </button> */}
           <input
+         
             type="file"
-            ref={hiddenFileInput}
+            // ref={hiddenFileInput}
             onChange={handleChange}
-            style={{ display: "none" }}
+            style={{fontSize:"14px",alignItems:"center", height:"30px",justifyContent:"center", backgroundColor: "#e6b970", cursor: "pointer",padding:2,  }}
           />
 
           {/* <InputField
@@ -167,12 +179,7 @@ const StylistCard = (props) => {
             placeholder="Enter stylist name"
             changeHandler={changeimage}
           /> */}
-          <InputField
-            fieldStyle={{ height: "25px" }}
-            placeholder="Enter stylist name"
-            value={Name}
-            changeHandler={addName}
-          />
+         
 
           {/* <DropdownMenu title={selected1}>
             {locations.map((item, ind) => {
@@ -192,7 +199,7 @@ const StylistCard = (props) => {
               }
             })}
           </DropdownMenu> */}
-
+         
           <div class="flex items-center">
             <svg
               aria-hidden="true"
@@ -271,6 +278,13 @@ const StylistCard = (props) => {
             </svg>
           </div>
         </div>
+
+        <InputField
+            fieldStyle={{ height: "35px" }}
+            placeholder="Enter stylist name"
+            value={Name}
+            changeHandler={addName}
+          />
         <DropdownMenu title={selected}>
           {locations.map((item, ind) => {
             return (
@@ -287,6 +301,7 @@ const StylistCard = (props) => {
         >
           Add
         </button>
+        {isLoading ? <LoadingSpinner /> : StylistCard}
       </Modal>
       {/* details Modal stylist */}
       <Modal
@@ -302,8 +317,8 @@ const StylistCard = (props) => {
             imgStyle={{ width: "45px", height: "45px" }}
           />
         </div>
-        <div className="input-fields-container">
-          <InputField fieldStyle={{ height: "30px" }} placeholder={name} />
+        <div className="input-fields-container" style={{marginBottom:"130px"}}>
+          <InputField fieldStyle={{ height: "30px", }} placeholder={name} />
           <InputField
             icon={HiLocationMarker}
             fieldStyle={{ height: "30px" }}
@@ -320,6 +335,7 @@ const StylistCard = (props) => {
           </div>
         </div>
       </Modal>
+     
     </>
   );
 };

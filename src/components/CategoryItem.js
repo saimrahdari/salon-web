@@ -17,6 +17,7 @@ import {
 import Modal from "../components/Modal";
 import InputField from "../components/InputField";
 import "../styles/categories.css";
+import LoadingSpinner from "./LoadingSpinner";
 
 const CategoryItem = ({ item, showModal, deletecarmodel }) => {
   const [showSubModal, setShowSubModal] = useState(false);
@@ -24,18 +25,32 @@ const CategoryItem = ({ item, showModal, deletecarmodel }) => {
   const [showsubCat, setShowsubCat] = useState(false);
   const hideSubModal = () => setShowSubModal(false);
   const hideCatModal = () => setShowCatModal(false);
-
+  const [isLoading, setIsLoading] = useState(false);
   const {
-    updatecategory,
+    updatecategory, deletecategory,
   } = useGlobalState();
   const [name, setName] = useState("");
   const [type, setType] = useState("");
   const updateName = (e) => setName(e.target.value);
   const updateType = (e) => setType(e.target.value);
 
+  const deleteCatData = async (id) => {
+    setIsLoading(true);
+    console.log("moix");
+    const ref = doc(db, "category", id);
+    try {
+      const del = await deleteDoc(ref);
 
+      deletecategory(id);
+    } catch (err) {
+      console.log(err);
+    }
+    setIsLoading(false);
+  };
+  
 
   const EditCat = async (uid) => {
+    setIsLoading(true);
     const ref = doc(db, "category", uid);
     try {
       await updateDoc(ref, {
@@ -47,9 +62,10 @@ const CategoryItem = ({ item, showModal, deletecarmodel }) => {
       console.log(err);
     }
     hideSubModal();
+    setIsLoading(false);
   };
   console.log(item.data.subcategories)
-
+ 
   return (
     <>
       <div className="category-item">
@@ -70,6 +86,7 @@ const CategoryItem = ({ item, showModal, deletecarmodel }) => {
               </div>
             </div>
           </div>
+          {isLoading ? <LoadingSpinner /> : CategoryItem}
           <div className="buttons-container">
             <div className="add-btn">
               Add subcategory
@@ -79,7 +96,7 @@ const CategoryItem = ({ item, showModal, deletecarmodel }) => {
                 onClick={() => showModal(item.id)}
               />
             </div>
-            <FaTrash   style={{cursor:'pointer'}} onClick={() => deletecarmodel(item.id)} className="icon" />
+            <FaTrash   style={{cursor:'pointer'}} onClick={() => deleteCatData (item.id)} className="icon" />
             <IoPencil
               style={{cursor:'pointer'}}
               onClick={() => setShowCatModal(true)}
@@ -132,6 +149,7 @@ const CategoryItem = ({ item, showModal, deletecarmodel }) => {
         >
           Update
         </button>
+        {isLoading ? <LoadingSpinner /> : CategoryItem}
       </Modal>
     </>
   );

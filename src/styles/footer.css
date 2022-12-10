@@ -3,18 +3,25 @@
     margin-top: auto;
     color: white;
     /* border: 1px solid red; */
-    font-size: 16px;
+    font-size: 18px;
+    margin-right: 80px;
+    
 }
 
 .footer div {
-    float: right;
+    float:right;
     display: flex;
     align-items: center;
-    margin-right: 190px;
+    cursor: pointer;
+  
 }
 
 .footer div .icon {
-    font-size: 16px;
+    font-size: 18px;
+}
+
+.footer div .prev{
+    margin-left: 40px;
 }
 
 .footer div .inactive {
@@ -23,4 +30,14 @@
 
 .footer div .active {
     color: var(--primaryColor);
+}
+.pagination{
+    display: flex;
+    flex-direction: row;
+    
+    padding: 10px;
+    color: white;
+}
+.pagination ul{
+    color: white;
 }
